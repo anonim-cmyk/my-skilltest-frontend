@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import ProductCard from "../components/ProductCard";
 import ProductForm from "../components/ProductForm";
 import { fetchProduct } from "../service/api";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
 gsap.registerPlugin(ScrollToPlugin);
+
 const STORAGE_KEY = "local_products_v1";
 
 const Product = () => {
@@ -14,10 +15,13 @@ const Product = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
+
   const cardsRef = useRef([]);
   const formRef = useRef(null);
-  const hasAnimated = useRef(false); // ⬅️ flag biar animasi cuma sekali
+  const hasAnimated = useRef(false);
+  const emptyRef = useRef(null);
 
+  // Load data
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -25,8 +29,8 @@ const Product = () => {
         const api = await fetchProduct();
         const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
         setItems([...local, ...api]);
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -39,23 +43,18 @@ const Product = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(localOnly));
   }, [items]);
 
-  // ✅ Animasi hanya sekali setelah data dimuat
+  // Animasi cards
   useEffect(() => {
     if (!loading && cardsRef.current.length > 0 && !hasAnimated.current) {
-      hasAnimated.current = true; // pasang flag dulu biar cuma sekali
-
-      // 🔧 pastikan ref sudah terisi penuh sebelum animasi
+      hasAnimated.current = true;
       requestAnimationFrame(() => {
         const ctx = gsap.context(() => {
-          const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-          tl.from(cardsRef.current, {
+          gsap.from(cardsRef.current, {
             opacity: 0,
-            y: 100,
-            duration: 1.2,
-            stagger: 0.25,
-            ease: "back.out(1.7)", // efek bounce ringan
-            immediateRender: false,
+            y: 80,
+            duration: 1.1,
+            stagger: 0.2,
+            ease: "back.out(1.7)",
           });
         });
         return () => ctx.revert();
@@ -63,17 +62,23 @@ const Product = () => {
     }
   }, [loading, items]);
 
-  const onSearch = (e) => setQuery(e.target.value);
+  // Animasi empty state
+  useEffect(() => {
+    if (emptyRef.current) {
+      gsap.fromTo(
+        emptyRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+      );
+    }
+  });
 
-  const filtered = () => {
-    const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter(
-      (i) =>
-        (i.title || "").toLowerCase().includes(q) ||
-        (i.description || "").toLowerCase().includes(q)
-    );
-  };
+  const onSearch = (e) => setQuery(e.target.value);
+  const filteredItems = items.filter(
+    (i) =>
+      i.title.toLowerCase().includes(query.toLowerCase()) ||
+      i.description.toLowerCase().includes(query.toLowerCase())
+  );
 
   const handleAdd = () => {
     setEditing({ title: "", price: "", description: "", image: "" });
@@ -81,7 +86,7 @@ const Product = () => {
   };
 
   const handleSave = (data) => {
-    if (String(editing?.id || "").startsWith("local-")) {
+    if (editing?.id?.startsWith("local-")) {
       setItems((prev) =>
         prev.map((p) => (p.id === editing.id ? { ...p, ...data } : p))
       );
@@ -104,16 +109,12 @@ const Product = () => {
     setEditing(item);
     setShowForm(true);
     setTimeout(() => {
-      // scroll halus ke form pakai GSAP
-      if (formRef.current) {
+      formRef.current &&
         gsap.to(window, {
           duration: 1,
           scrollTo: { y: formRef.current, offsetY: 100 },
           ease: "power2.out",
         });
-      } else {
-        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
     }, 200);
   };
 
@@ -123,35 +124,46 @@ const Product = () => {
   };
 
   return (
-    <div className="px-6 md:px-12 mt-8 md:mt-12">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-white px-6 md:px-12 py-12">
+      {/* Header */}
+      <div className="text-center mb-10">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+          🛍️ Product Catalog
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Browse, search, and manage your campus products easily.
+        </p>
+      </div>
+
       {/* Search + Add */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-10 bg-white/80 backdrop-blur-md rounded-2xl shadow p-4 md:p-6">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <input
             value={query}
             onChange={onSearch}
-            placeholder="Search products..."
-            className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            placeholder="🔍 Search products..."
+            className="flex-1 sm:flex-none border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
           />
-          <button
-            onClick={() => setQuery("")}
-            className="px-3 py-2 border rounded hover:bg-gray-50 transition"
-          >
-            Clear
-          </button>
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="px-3 py-2 border rounded-xl hover:bg-gray-100 transition"
+            >
+              Clear
+            </button>
+          )}
         </div>
-
         <button
           onClick={handleAdd}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+          className="px-5 py-2 bg-green-600 text-white font-medium rounded-xl shadow hover:bg-green-700 transition-transform transform hover:scale-105"
         >
-          Add Product
+          + Add Product
         </button>
       </div>
 
       {/* Form */}
       {showForm && (
-        <div ref={formRef} className="mb-6">
+        <div ref={formRef} className="mb-10">
           <ProductForm
             initial={editing}
             onSave={handleSave}
@@ -165,15 +177,31 @@ const Product = () => {
 
       {/* Loading */}
       {loading ? (
-        <div className="flex justify-center items-center h-48">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="flex justify-center items-center h-56">
+          <div className="w-14 h-14 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : filteredItems.length === 0 ? (
+        <div
+          ref={emptyRef}
+          className="flex flex-col justify-center items-center h-64 text-center text-gray-500"
+        >
+          <div className="text-5xl mb-4">🧐</div>
+          <p className="text-lg font-medium text-gray-700">
+            Tidak ada produk ditemukan
+          </p>
+          <p className="text-sm text-gray-500 mt-1">
+            Coba gunakan kata kunci lain atau tambahkan produk baru ✨
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* Reset refs setiap render */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-fr">
           {(() => (cardsRef.current = []))()}
-          {filtered().map((item, i) => (
-            <div key={item.id} ref={(el) => (cardsRef.current[i] = el)}>
+          {filteredItems.map((item, i) => (
+            <div
+              key={item.id}
+              ref={(el) => (cardsRef.current[i] = el)}
+              className="h-full"
+            >
               <ProductCard
                 item={item}
                 onEdit={handleEdit}
