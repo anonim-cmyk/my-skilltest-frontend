@@ -1,6 +1,3 @@
-// components/SearchBar.jsx
-import React from "react";
-
 export default function SearchBar({ query, setQuery, onAdd }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-10 bg-white/80 backdrop-blur-md rounded-2xl shadow p-4 md:p-6">

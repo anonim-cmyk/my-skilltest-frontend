@@ -1,14 +1,8 @@
 // components/ProductGrid.jsx
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import ProductCard from "./ProductCard";
 
-/**
- * ProductGrid
- * - menerima array items
- * - onEdit/onDelete callback
- * - meng-handle animasi cards sekali saat muncul
- */
 export default function ProductGrid({ items, onEdit, onDelete }) {
   const cardsRef = useRef([]);
   const hasAnimated = useRef(false);
