@@ -1,4 +1,3 @@
-// components/ProductGrid.jsx
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import ProductCard from "./ProductCard";
@@ -7,13 +6,11 @@ export default function ProductGrid({ items, onEdit, onDelete }) {
   const cardsRef = useRef([]);
   const hasAnimated = useRef(false);
 
-  // clear refs on render
   cardsRef.current = [];
 
   useEffect(() => {
     if (items.length > 0 && !hasAnimated.current) {
       hasAnimated.current = true;
-      // animate cards with stagger
       gsap.from(cardsRef.current, {
         opacity: 0,
         y: 80,

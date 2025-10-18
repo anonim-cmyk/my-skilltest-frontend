@@ -1,4 +1,3 @@
-// hooks/useProducts.js
 import { useEffect, useState, useCallback } from "react";
 import { fetchProduct } from "../service/api";
 
@@ -24,12 +23,10 @@ export default function useProducts() {
     }
   }, []);
 
-  // Load items on mount
   useEffect(() => {
     loadItems();
   }, [loadItems]);
 
-  // Persist local items
   useEffect(() => {
     const localOnly = items.filter((i) => String(i.id).startsWith("local-"));
     try {

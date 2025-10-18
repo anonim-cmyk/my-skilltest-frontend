@@ -1,9 +1,5 @@
-// components/EmptyState.jsx
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 
-/**
- * Simple empty state. ForwardRef used so parent can animate it with GSAP.
- */
 const EmptyState = forwardRef(function EmptyState(_, ref) {
   return (
     <div
