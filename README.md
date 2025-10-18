@@ -1,16 +1,54 @@
-# React + Vite
+## Instalasi & Menjalankan Aplikasi
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+```bash
+# 1. Clone repository
+git clone <URL_REPO>
+cd <nama-folder>
 
-Currently, two official plugins are available:
+# 2. Install dependencies
+npm install
+# atau
+yarn
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# 3. Jalankan development server
+npm start
+# atau
+npm run dev
+# atau
+yarn start
 
-## React Compiler
+# 4. Buka aplikasi di browser
+# Lalu buka: http://localhost:5173
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Fitur
+Landing Page & Hero Section
 
-## Expanding the ESLint configuration
+Tampilan menarik dengan gambar hero, teks, dan tombol navigasi
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Product Catalog
+
+Daftar produk dalam grid responsif
+
+CRUD produk (lokal / temporary)
+
+Pencarian produk real-time
+
+Empty state saat tidak ada produk
+
+Skeleton loader saat loading
+
+Animasi GSAP
+
+Animasi muncul untuk card, hero section, dan empty state
+
+Responsive Design
+
+Kompatibel dengan mobile, tablet, dan desktop
+
+Form
+
+Tambah / edit produk dengan scroll halus ke form
+
+Local Storage
+
+Menyimpan data produk secara lokal di browser
